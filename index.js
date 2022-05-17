@@ -60,7 +60,45 @@ async function run() {
             const cursor = serviceCollection.find(query);
             const services = await cursor.toArray();
             res.send(services);
+        });
+
+        app.get('/user', async (req, res) => {
+            const users = await usersCollection.find().toArray();
+            res.send(users);
+        });
+
+
+
+
+
+        ///////// make admin /////////////////////////////////
+
+
+
+        app.put('/user/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            // const requester = req.decoded.email;
+            // const requesterAcoount = await usersCollection.findOne({ email: requester });
+            // if (requesterAcoount.role === 'admin') {
+                const filter = { email: email };
+                const updateDoc = {
+                    $set: { role: 'admin' },
+                };
+                const result = await usersCollection.updateOne(filter, updateDoc);
+                res.send(result);
+            // }else{
+            //     res.status(403).send({message:'access forbidenss'})
+            // }
+
         })
+
+
+
+
+
+
+        //////////////////////////////////////////////////////
+
 
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
@@ -84,10 +122,10 @@ async function run() {
             if (patient === decodedEmail) {
                 const query = { patient: patient }
                 const bookings = await bookingCollection.find(query).toArray();
-               return res.send(bookings);
+                return res.send(bookings);
             }
-            else{
-                return res.status(403).send({message:'forbidden access'})
+            else {
+                return res.status(403).send({ message: 'forbidden access' })
             }
 
         })

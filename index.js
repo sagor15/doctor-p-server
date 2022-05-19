@@ -53,14 +53,16 @@ async function run() {
         const serviceCollection = client.db('doctors_portal').collection('services');
         const bookingCollection = client.db('doctors_portal').collection('booking');
         const usersCollection = client.db('doctors_portal').collection('users');
+        const doctorCollection = client.db('doctors_portal').collection('doctors');
 
 
         app.get('/service', async (req, res) => {
             const query = {}
-            const cursor = serviceCollection.find(query);
+            const cursor = serviceCollection.find(query).project({ name: 1 });
             const services = await cursor.toArray();
             res.send(services);
         });
+
 
         app.get('/user', async (req, res) => {
             const users = await usersCollection.find().toArray();
@@ -80,12 +82,12 @@ async function run() {
             // const requester = req.decoded.email;
             // const requesterAcoount = await usersCollection.findOne({ email: requester });
             // if (requesterAcoount.role === 'admin') {
-                const filter = { email: email };
-                const updateDoc = {
-                    $set: { role: 'admin' },
-                };
-                const result = await usersCollection.updateOne(filter, updateDoc);
-                res.send(result);
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' },
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.send(result);
             // }else{
             //     res.status(403).send({message:'access forbidenss'})
             // }
@@ -131,7 +133,33 @@ async function run() {
         })
 
 
+        /////////////////////////////////////////////
 
+         app.get('/doctor', async (req, res) => {
+            const doctors = await doctorCollection.find().toArray();
+            res.send(doctors);
+         });
+
+        app.post('/doctor', async(req,res)=>{
+            const doctor = req.body;
+            const result = await doctorCollection.insertOne(doctor);
+            res.send(result);
+        });
+
+        app.delete('/doctor/:email', async(req,res)=>{
+            const email = req.params.email;
+            const filter = {email:email}
+            const result = await doctorCollection.deleteOne(filter);
+            res.send(result);
+        })
+
+
+
+
+
+
+
+        //////////////////////////////////////////
 
         app.post('/booking', async (req, res) => {
             const booking = req.body;
